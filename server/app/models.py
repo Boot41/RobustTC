@@ -12,3 +12,9 @@ class JobListing(models.Model):
     date_posted = models.DateTimeField(auto_now_add=True)
     job_type = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
+
+class JobApplication(models.Model):
+    job_listing = models.ForeignKey(JobListing, related_name='applications', on_delete=models.CASCADE)
+    seeker_id = models.IntegerField()
+    date_applied = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, default='submitted')

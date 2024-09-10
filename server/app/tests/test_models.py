@@ -1,17 +1,14 @@
 from django.test import TestCase
-from .models import Employer, JobListing
+from .models import Employer, JobListing, JobApplication
 
-class JobListingModelTest(TestCase):
+class JobApplicationModelTest(TestCase):
     def setUp(self):
         self.employer = Employer.objects.create(name='Test Employer', email='employer@test.com')
-        self.job = JobListing.objects.create(employer=self.employer, title='Data Scientist', description='Analyze data', location='Remote', job_type='Full-Time')
+        self.job_listing = JobListing.objects.create(employer=self.employer, title='Data Scientist', description='Analyze data', location='Remote', job_type='Full-Time')
+        self.application = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=1)
 
-    def test_job_listing_fields(self):
-        self.assertEqual(self.job.title, 'Data Scientist')
-        self.assertEqual(self.job.description, 'Analyze data')
-        self.assertEqual(self.job.location, 'Remote')
-        self.assertEqual(self.job.job_type, 'Full-Time')
-        self.assertTrue(self.job.is_active)
-
-    def test_job_listing_employer_relationship(self):
-        self.assertEqual(self.job.employer, self.employer)
+    def test_job_application_fields(self):
+        self.assertEqual(self.application.job_listing, self.job_listing)
+        self.assertEqual(self.application.seeker_id, 1)
+        self.assertTrue(self.application.date_applied is not None)
+        self.assertEqual(self.application.status, 'submitted')

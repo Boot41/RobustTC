@@ -2,8 +2,33 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import JobListing
+from .models import JobListing, JobApplication
 from .serializers import JobListingSerializer
+from rest_framework import serializers
+
+class JobApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobApplication
+        fields = ['job_listing', 'seeker_id', 'status', 'date_applied']
+
+@api_view(['POST'])
+def apply_for_job(request, job_id):
+    if request.method == 'POST':
+        serializer = JobApplicationSerializer(data=request.data)
+        if serializer.is_valid():
+            job_listing = JobListing.objects.filter(id=job_id, is_active=True).first()
+            if job_listing:
+                serializer.save(job_listing=job_listing)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'error': 'Job not found or inactive'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def get_application_status(request, seeker_id):
+    if request.method == 'GET':
+        applications = JobApplication.objects.filter(seeker_id=seeker_id)
+        serializer = JobApplicationSerializer(applications, many=True)
+        return Response(serializer.data)
 
 @api_view(['POST'])
 def create_job(request):
