@@ -28,3 +28,30 @@ class JobListingTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['title'], 'Backend Developer')
+
+    def test_update_job_success(self):
+        job = JobListing.objects.create(employer=self.employer, title='Old Title', description='Description', location='Remote')
+        url = reverse('update_job', args=[job.id])
+        data = {'title': 'New Title', 'description': 'Description', 'location': 'Remote'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        job.refresh_from_db()
+        self.assertEqual(job.title, 'New Title')
+
+    def test_update_job_not_found(self):
+        url = reverse('update_job', args=[999])  # Non-existent ID
+        data = {'title': 'New Title'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_job_success(self):
+        job = JobListing.objects.create(employer=self.employer, title='Job to Delete', description='Description', location='Remote')
+        url = reverse('delete_job', args=[job.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(JobListing.objects.count(), 0)
+
+    def test_delete_job_not_found(self):
+        url = reverse('delete_job', args=[999])  # Non-existent ID
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
