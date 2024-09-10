@@ -41,3 +41,30 @@ class JobApplicationTests(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)  # No applications
+
+    def test_update_application_success(self):
+        application = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=1)
+        url = reverse('update_application', args=[application.id])
+        data = {'status': 'under_review'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        application.refresh_from_db()
+        self.assertEqual(application.status, 'under_review')
+
+    def test_update_application_not_found(self):
+        url = reverse('update_application', args=[999])  # Non-existent Application ID
+        data = {'status': 'under_review'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_withdraw_application_success(self):
+        application = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=1)
+        url = reverse('withdraw_application', args=[application.id])
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(JobApplication.objects.count(), 0)
+
+    def test_withdraw_application_not_found(self):
+        url = reverse('withdraw_application', args=[999])  # Non-existent Application ID
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

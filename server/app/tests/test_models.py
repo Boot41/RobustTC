@@ -12,3 +12,10 @@ class JobApplicationModelTest(TestCase):
         self.assertEqual(self.application.seeker_id, 1)
         self.assertTrue(self.application.date_applied is not None)
         self.assertEqual(self.application.status, 'submitted')
+        
+    def test_job_application_str(self):
+        self.assertEqual(str(self.application), f'JobApplication: {self.application.job_listing.title} by {self.application.seeker_id}')
+
+    def test_application_creation_with_invalid_data(self):
+        with self.assertRaises(ValueError):
+            JobApplication.objects.create(job_listing=None, seeker_id=1)  # Invalid Job Listing
