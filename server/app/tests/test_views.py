@@ -23,7 +23,16 @@ class JobListingTests(APITestCase):
 
     def test_get_jobs_success(self):
         job = JobListing.objects.create(employer=self.employer, title='Backend Developer', description='Work on backend', location='Remote')
-        url = reverse('get_jobs', args=[self.employer.id])
+        url = reverse('get_jobs')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], 'Backend Developer')
+
+    def test_get_jobs_filter_by_title(self):
+        job1 = JobListing.objects.create(employer=self.employer, title='Backend Developer', description='Work on backend', location='Remote')
+        job2 = JobListing.objects.create(employer=self.employer, title='Frontend Developer', description='Work on UI', location='Remote')
+        url = reverse('get_jobs') + '?title=Backend'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)

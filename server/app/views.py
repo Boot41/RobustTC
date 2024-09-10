@@ -15,9 +15,23 @@ def create_job(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-def get_jobs(request, employer_id):
+def get_jobs(request):
     if request.method == 'GET':
-        jobs = JobListing.objects.filter(employer_id=employer_id)
+        title = request.query_params.get('title', None)
+        location = request.query_params.get('location', None)
+        job_type = request.query_params.get('type', None)
+        date_posted = request.query_params.get('date_posted', None)
+
+        jobs = JobListing.objects.all()
+        if title:
+            jobs = jobs.filter(title__icontains=title)
+        if location:
+            jobs = jobs.filter(location__icontains=location)
+        if job_type:
+            jobs = jobs.filter(job_type=job_type)
+        if date_posted:
+            jobs = jobs.filter(date_posted=date_posted)
+
         serializer = JobListingSerializer(jobs, many=True)
         return Response(serializer.data)
 
