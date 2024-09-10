@@ -9,7 +9,7 @@ from .serializers import JobApplicationSerializer
 class JobApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobApplication
-        fields = ['job_listing', 'seeker_id', 'status', 'date_applied']
+        fields = ['job_listing', 'seeker_id', 'status', 'date_applied', 'interview_scheduled']
 
 @api_view(['POST'])
 def apply_for_job(request, job_id):
@@ -119,3 +119,16 @@ def delete_job(request, job_id):
         return Response({'error': 'Job not found'}, status=status.HTTP_404_NOT_FOUND)
     job.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+def schedule_interview(request, application_id):
+    try:
+        application = JobApplication.objects.get(id=application_id)
+    except JobApplication.DoesNotExist:
+        return Response({'error': 'Application not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'POST':
+        # Ideally you'd validate and process the scheduling data from request.data here
+        application.interview_scheduled = True  # Schedule the interview
+        application.save()
+        return Response({'message': 'Interview scheduled successfully.', 'application_id': application.id}, status=status.HTTP_200_OK)

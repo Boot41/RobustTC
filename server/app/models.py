@@ -18,3 +18,4 @@ class JobApplication(models.Model):
     seeker_id = models.IntegerField()
     date_applied = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, default='submitted')
+    interview_scheduled = models.BooleanField(default=False)  # New field to track interview schedule status
