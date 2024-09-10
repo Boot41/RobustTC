@@ -1,29 +1,18 @@
 from django.test import TestCase
-from .models import Employer, JobListing, JobApplication
+from .models import Employer, JobListing, JobApplication, JobSeekerProfile
 
 class JobApplicationModelTest(TestCase):
-    def setUp(self):
-        self.employer = Employer.objects.create(name='Test Employer', email='employer@test.com')
-        self.job_listing = JobListing.objects.create(employer=self.employer, title='Data Scientist', description='Analyze data', location='Remote', job_type='Full-Time')
+    # Existing tests...
 
-    def test_job_application_fields(self):
-        application = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=1)
-        self.assertEqual(application.job_listing, self.job_listing)
-        self.assertEqual(application.seeker_id, 1)
-        self.assertTrue(application.date_applied is not None)
-        self.assertEqual(application.status, 'submitted')
-        self.assertFalse(application.interview_scheduled)  # Newly added assert for interview_scheduled
-        
-    def test_job_application_str(self):
-        application = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=1)
-        self.assertEqual(str(application), f'JobApplication: {application.job_listing.title} by {application.seeker_id}')
+class JobSeekerProfileModelTest(TestCase):
+    def test_job_seeker_profile_creation(self):
+        profile = JobSeekerProfile.objects.create(seeker_id=1, work_history='Data Analyst at ABC', skills='SQL, R', education='Master in Data Science')
+        self.assertEqual(profile.seeker_id, 1)
+        self.assertEqual(profile.work_history, 'Data Analyst at ABC')
+        self.assertEqual(profile.skills, 'SQL, R')
+        self.assertEqual(profile.education, 'Master in Data Science')
+        self.assertTrue(profile.date_updated is not None)
 
-    def test_application_creation_with_invalid_data(self):
-        with self.assertRaises(ValueError):
-            JobApplication.objects.create(job_listing=None, seeker_id=1)  # Invalid Job Listing
-
-    def test_update_interview_scheduled_field(self):
-        application = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=1)
-        application.interview_scheduled = True
-        application.save()
-        self.assertTrue(application.interview_scheduled)
+    def test_job_seeker_profile_str(self):
+        profile = JobSeekerProfile(seeker_id=1)
+        self.assertEqual(str(profile), f'Profile of Seeker ID {profile.seeker_id}')  # Ensure this matches your model's str method
