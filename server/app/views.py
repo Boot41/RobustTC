@@ -30,8 +30,15 @@ def get_application_status(request, seeker_id):
         serializer = JobApplicationSerializer(applications, many=True)
         return Response(serializer.data)
 
+@api_view(['GET'])
+def get_applications_for_job(request, job_id):
+    if request.method == 'GET':
+        applications = JobApplication.objects.filter(job_listing_id=job_id)
+        serializer = JobApplicationSerializer(applications, many=True)
+        return Response(serializer.data)
+
 @api_view(['PUT'])
-def update_application(request, application_id):
+def update_application_status(request, application_id):
     try:
         application = JobApplication.objects.get(id=application_id)
     except JobApplication.DoesNotExist:

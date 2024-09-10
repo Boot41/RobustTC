@@ -42,17 +42,25 @@ class JobApplicationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)  # No applications
 
-    def test_update_application_success(self):
+    def test_get_applications_for_job_success(self):
+        application1 = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=1)
+        application2 = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=2)
+        url = reverse('get_applications_for_job', args=[self.job_listing.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_update_application_status_success(self):
         application = JobApplication.objects.create(job_listing=self.job_listing, seeker_id=1)
-        url = reverse('update_application', args=[application.id])
+        url = reverse('update_application_status', args=[application.id])
         data = {'status': 'under_review'}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         application.refresh_from_db()
         self.assertEqual(application.status, 'under_review')
 
-    def test_update_application_not_found(self):
-        url = reverse('update_application', args=[999])  # Non-existent Application ID
+    def test_update_application_status_not_found(self):
+        url = reverse('update_application_status', args=[999])  # Non-existent Application ID
         data = {'status': 'under_review'}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
