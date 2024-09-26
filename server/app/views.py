@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from .models import JobListing, JobApplication, JobSeekerProfile
 from .serializers import JobListingSerializer, JobApplicationSerializer
 from .serializers import JobSeekerProfileSerializer
+from rest_framework import serializers
+
 
 class JobSeekerProfileSerializer(serializers.ModelSerializer):
     class Meta:
